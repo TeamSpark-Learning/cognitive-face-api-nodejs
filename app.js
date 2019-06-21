@@ -8,9 +8,6 @@
     var videoPreview = document.getElementById('videoPreview');
     var imgPrevew = document.getElementById('imgPreview');
 
-    var Webcam = require('webcamjs');
-    Webcam.attach(videoPreview);
-
     var storage = require('azure-storage');
     var blobService = storage.createBlobService(configs.storageName, configs.storageKey);
     blobService.createContainerIfNotExists(configs.storageContainer, {
@@ -32,8 +29,21 @@
     }, (e) => { });
 
     function capturePhotoFromCamera() {
-        Webcam.snap(function(data){
-            imgPrevew.setAttribute('src', data);
-        });
+        function takeASnap() {
+            var canvas = document.createElement('canvas');  // create a canvas
+            var ctx = canvas.getContext('2d');              // get its context
+            canvas.width = videoPreview.videoWidth;         // set its size to the one of the video
+            canvas.height = videoPreview.videoHeight;
+            ctx.drawImage(videoPreview, 0, 0);              // the video
+            return new Promise((resolve, reject) => {
+                resolve(canvas.toDataURL());
+            });
+        }
+
+        takeASnap()
+            .then((data) => {
+                imgPrevew.setAttribute('src', data);
+            });
+
     }
 })();
