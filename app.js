@@ -13,12 +13,10 @@
     blobService.createContainerIfNotExists(configs.storageContainer, {
         publicAccessLevel: 'blob'
     }, function(error, result, response) {
-        if (!error) {
-            // if result = true, container was created.
-            // if result = false, container already existed.
+        if (error) {
+            alert(error);
         }
     });
-
 
     document.getElementById('btnCapture')
         .addEventListener('click', capturePhotoFromCamera);
