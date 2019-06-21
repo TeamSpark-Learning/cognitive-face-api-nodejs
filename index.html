@@ -2,16 +2,33 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Hello World!</title>
+        <title>Smart Azure Lock Orchestrator (aka SALO)</title>
     </head>
     <body>
-        <video id="videoPreview"
-            style="border-color: #000000; border-width: 1px; border-style: solid; width: 640px; height: 400px;">
-        </video>
-        <button id="btnCapture">Capture</button>
-        <img id="imgPreview"
-            style="border-color: #000000; border-width: 1px; border-style: solid; width: 640px; height: 400px;"/>
-        
+        <div>
+            <p>Camera feed</p>
+            <video id="videoPreview"
+                style="border-color: #000000; border-width: 1px; border-style: solid; width: 640px; height: 400px;">
+            </video>
+        </div>
+
+        <div>
+            <p>Current captured image</p>
+            <img id="imgPreview"
+                style="border-color: #000000; border-width: 1px; border-style: solid; max-width: 640px; max-height: 400px;"/>
+        </div>
+
+        <div>
+            <button id="btnCapture">Capture image</button>
+            <button id="btnSetMaster">Set image as master</button>
+            <button id="btnTryUnlock">Try to unlock</button>
+        </div>
+
+        <div>
+            <div id="pSuccess" style="display: none;">Success!</div>
+            <div id="pFailure" style="display: none;">You shall not pass!</div>
+        </div>
+
         <script src="app.js"></script>
     </body>
 </html>
