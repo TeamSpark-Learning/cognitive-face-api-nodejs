@@ -15,6 +15,10 @@
     var videoPreview = document.getElementById('videoPreview');
     var imgPrevew = document.getElementById('imgPreview');
 
+    var log = require('./helpers/log');
+    log.clear();
+    log.showProgress();
+
     var fs = require('fs');
     var path = require('path');
 
@@ -244,8 +248,11 @@
     blobService.createContainerIfNotExists(configs.storageContainer, {
         publicAccessLevel: 'blob'
     }, (error) => {
-        if (error) { 
-            handleError(error); }
+        if (error) {
+            handleError(error);
+        } else {
+            log.append('Azure Storage initialized.');
+        }
     });
 
 
@@ -273,6 +280,7 @@
     }, handleError)
     .then(() => {
     // 4. get all persons in group
+        log.append('Face group initialized.');
         return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/persons`, 'get');
     }, handleError)
     .then((persons) => {
@@ -292,6 +300,8 @@
         }
     }, handleError)
     .then((person) => {
+        log.append('Person initialized.');
+        log.hideAll();        
     // 6. initialize person id
         configs.facePersonId = person.personId;
     }, handleError)
@@ -300,8 +310,8 @@
     // ====================================
     // initialize camera
     navigator.getUserMedia({ video: true, audio: false }, (localMediaStream) => {
-        videoPreview.srcObject = localMediaStream
-        videoPreview.autoplay = true
+        videoPreview.srcObject = localMediaStream;
+        videoPreview.autoplay = true;
     }, handleError);
 
 

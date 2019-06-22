@@ -3,8 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <title>Smart Azure Lock Operator (aka S.A.L.O.)</title>
+        <link rel="stylesheet" type="text/css" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
     </head>
-    <body>
+    <body class="container-fluid">
         <div>
             <p>Camera feed</p>
             <video id="videoPreview"
@@ -25,22 +26,19 @@
         </div>
 
         <div>
-            <div id="msgProgress" style="display: none;">We are thinking...</div>
-            <div id="msgSuccess" style="display: none;">Success!</div>
-            <div id="msgFailure" style="display: none;">You shall not pass!</div>
+            <div id="msgProgress" class="d-none">
+                <img src="./assets/thinking.jpg" />
+            </div>
+            <div id="msgSuccess" class="d-none">
+                <img src="./assets/success.jpg" />
+            </div>
+            <div id="msgFailure" class="d-none">
+                <img src="./assets/fail.jpg" />
+            </div>
         </div>
 
         <div>
-            <p>Storage</p>
-            <ul>
-                <li style="display: none;">(1 of 1) Container initialized</li>
-            </ul>
-
-            <p>Face API</p>
-            <ul>
-                <li style="display: none;">(1 of 2) Group initialized</li>
-                <li style="display: none;">(2 of 2) Person initialized</li>
-            </ul>
+            <ul id="msgLog"></ul>
         </div>
 
         <script src="app.js"></script>
