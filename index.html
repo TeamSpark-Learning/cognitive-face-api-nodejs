@@ -5,42 +5,63 @@
         <title>Smart Azure Lock Operator (aka S.A.L.O.)</title>
         <link rel="stylesheet" type="text/css" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
     </head>
-    <body class="container-fluid">
-        <div>
-            <p>Camera feed</p>
-            <video id="videoPreview"
-                style="border-color: #000000; border-width: 1px; border-style: solid; width: 640px; height: 400px;">
-            </video>
-        </div>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <div class="alert alert-secondary" role="alert">
+                        <h1>Camera feed</h1>
+                    </div>
 
-        <div>
-            <p>Current captured image</p>
-            <img id="imgPreview"
-                style="border-color: #000000; border-width: 1px; border-style: solid; max-width: 640px; max-height: 400px;"/>
-        </div>
+                    <video id="videoPreview"
+                           style="border-color: #ccc; border-width: 1px; border-style: solid; width: 640px; height: 400px; padding: 10px;">
+                    </video>
+                </div>
 
-        <div>
-            <button id="btnCapture">Capture image</button>
-            <button id="btnSetMaster">Set image as master</button>
-            <button id="btnTryUnlock">Try to unlock</button>
-        </div>
-
-        <div>
-            <div id="msgProgress" class="d-none">
-                <img src="./assets/thinking.jpg" />
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <div class="alert alert-info" role="alert">
+                    <h1>Current captured image</h1>
+                </div>
+                    <img id="imgPreview"
+                         style="border-color: #ccc; border-width: 1px; border-style: solid; max-width: 640px; max-height: 400px; padding: 10px; margin: 20px 10px;"/>
             </div>
-            <div id="msgSuccess" class="d-none">
-                <img src="./assets/success.jpg" />
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center py-2">
+                    <div>
+                        <button id="btnCapture" class="btn btn-primary">Capture image</button>
+                        <button id="btnSetMaster" class="btn btn-info">Set image as master</button>
+                        <button id="btnTryUnlock" class="btn btn-success">Try to unlock</button>
+                    </div>
             </div>
-            <div id="msgFailure" class="d-none">
-                <img src="./assets/fail.jpg" />
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                    <div class="alert alert-warning" role="alert">
+                        <h1>Status</h1>
+                    </div>
+                    <div>
+                        <div id="msgProgress" class="d-none">
+                            <img src="./assets/thinking.jpg" />
+                        </div>
+                        <div id="msgSuccess" class="d-none">
+                            <img src="./assets/success.jpg" />
+                        </div>
+                        <div id="msgFailure" class="d-none">
+                            <img src="./assets/fail.jpg" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <ul id="msgLog"></ul>
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div>
-            <ul id="msgLog"></ul>
-        </div>
 
         <script src="app.js"></script>
+
     </body>
 </html>
