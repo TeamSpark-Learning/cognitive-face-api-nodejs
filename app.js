@@ -61,7 +61,10 @@
             return new Promise((resolve, reject) => {
                 var filePath = path.join(__dirname, 'buffer', 'face.' + ext);
                 fs.writeFile(filePath, buffer, (error) => {
-                    if (!error) { resolve(filePath); }
+                    if (!error) { 
+                        log.append('Preview saved to local file.');
+                        resolve(filePath);
+                    }
                     else { reject(err); }
                 });
             });
@@ -71,7 +74,10 @@
             return new Promise((resolve, reject) => {
                 var blobName = uuid();
                 blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
-                    if (!error) { resolve(blobName); }
+                    if (!error) { 
+                        log.append('Preview uploaded to Azure Storage.');
+                        resolve(blobName);
+                    }
                     else { reject(err); }
                 });
             });
@@ -105,6 +111,8 @@
             }, handleError);
         }
 
+        log.clear();
+
         savePreviewToFile()
         .then((filePath) => {
             return uploadFileToStorage(filePath);
@@ -113,7 +121,11 @@
             return addFaceToModel(blobName);
         }, handleError)
         .then(() => {
+            log.append('Face added.');
             return trainModel();
+        }, handleError)
+        .then(() => {
+            log.append('Model trained.');
         }, handleError);
     }
 
@@ -130,7 +142,10 @@
             return new Promise((resolve, reject) => {
                 var filePath = path.join(__dirname, 'buffer', 'face.' + ext);
                 fs.writeFile(filePath, buffer, (error) => {
-                    if (!error) { resolve(filePath); }
+                    if (!error) {
+                        log.append('Preview saved to local file.');
+                        resolve(filePath);
+                    }
                     else { reject(err); }
                 });
             });
@@ -140,7 +155,10 @@
             return new Promise((resolve, reject) => {
                 var blobName = uuid();
                 blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
-                    if (!error) { resolve(blobName); }
+                    if (!error) { 
+                        log.append('Preview uploaded to Azure Storage.');
+                        resolve(blobName);
+                    }
                     else { reject(err); }
                 });
             });
@@ -161,15 +179,21 @@
         }
 
         function checkCandidates(faces) {
-            for (var i = 0; i < faces.length; i++) {
-                for (var j = 0; j < faces[i].candidates; j++) {
-                    if (faces[i].candidates[j].confidence > configs.faceThreshold) {
-                        return Promise.resolve(true);
+            return new Promise((resolve, reject) => {
+                for (var i = 0; i < faces.length; i++) {
+                    for (var j = 0; j < faces[i].candidates.length; j++) {
+                        if (faces[i].candidates[j].confidence > configs.faceThreshold) {
+                            resolve(true);
+                            return;
+                        }
                     }
                 }
-            }
-            return Promise.resolve(false);
+                resolve(false);
+            });
         }
+
+        log.clear();
+        log.showProgress();
 
         savePreviewToFile()
         .then((filePath) => {
@@ -179,10 +203,19 @@
             return detectFace(blobName);
         }, handleError)
         .then((faces) => {
+            log.append('Face detected.');
             return identityFace(faces);
         }, handleError)
         .then((faces) => {
+            log.append('Face identified.');
             return checkCandidates(faces);
+        }, handleError)
+        .then((result) => {
+            if (!!result) {
+                log.showSuccess();
+            } else {
+                log.showFail();
+            }
         }, handleError);
     }
 

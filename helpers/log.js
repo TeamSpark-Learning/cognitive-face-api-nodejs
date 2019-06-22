@@ -2,8 +2,8 @@ var private = {
     container: document.getElementById('msgLog'),
     messages: {
         progress: document.getElementById('msgProgress'),
-        fail: document.getElementById('msgSuccess'),
-        success: document.getElementById('msgFailure')
+        fail: document.getElementById('msgFailure'),
+        success: document.getElementById('msgSuccess')
     }
 };
 
@@ -23,6 +23,16 @@ helperLog.append = function(message) {
 helperLog.showProgress = function() {
     helperLog.hideAll();
     private.messages.progress.classList.remove('d-none');
+}
+
+helperLog.showFail = function() {
+    helperLog.hideAll();
+    private.messages.fail.classList.remove('d-none');
+}
+
+helperLog.showSuccess = function() {
+    helperLog.hideAll();
+    private.messages.success.classList.remove('d-none');
 }
 
 helperLog.hideAll = function() {
