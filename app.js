@@ -1,4 +1,6 @@
 (async function() {
+    var configs2 = require('./helpers/config');
+
     var configs = {
         storageName: '',
         storageKey: '',
@@ -30,7 +32,7 @@
     var uuid = require('uuid/v4');
 
     var storage = require('azure-storage');
-    var blobService = storage.createBlobService(configs.storageName, configs.storageKey);
+    var blobService = storage.createBlobService(configs2.storage.name, configs2.storage.key);
     
     function capturePhotoFromCamera() {
         function takeASnap() {
@@ -75,7 +77,7 @@
         function uploadFileToStorage(filePath) {
             return new Promise((resolve, reject) => {
                 var blobName = uuid();
-                blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
+                blobService.createBlockBlobFromLocalFile(configs2.storage.container, blobName, filePath, (error, result, response) => {
                     if (!error) { 
                         helperLog.logAppend('Preview uploaded to Azure Storage.');
                         resolve(blobName);
@@ -86,15 +88,15 @@
         }
 
         function addFaceToModel(blobName) {
-            var blobUrl = `https://${configs.storageName}.blob.core.windows.net/${configs.storageContainer}/${blobName}`;
+            var blobUrl = `https://${configs2.storage.name}.blob.core.windows.net/${configs2.storage.container}/${blobName}`;
 
             var model = { Url: blobUrl };
-            return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/persons/${configs.facePersonId}/persistedfaces`, 'post', model);
+            return callFaceApiEndpoint(`/persongroups/${configs2.face.group}/persons/${configs.facePersonId}/persistedfaces`, 'post', model);
         }
 
         function trainModel() {
             function ensureModelTrained() {
-                return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/training`, 'get')
+                return callFaceApiEndpoint(`/persongroups/${configs2.face.group}/training`, 'get')
                 .then((response) => {
                     if (response.status == 'succeeded') {
                         return Promise.resolve();
@@ -107,7 +109,7 @@
                 }, handleError);
             }
 
-            return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/train`, 'post')
+            return callFaceApiEndpoint(`/persongroups/${configs2.face.group}/train`, 'post')
             .then(() => {
                 return ensureModelTrained();
             }, handleError);
@@ -156,7 +158,7 @@
         function uploadFileToStorage(filePath) {
             return new Promise((resolve, reject) => {
                 var blobName = uuid();
-                blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
+                blobService.createBlockBlobFromLocalFile(configs2.storage.container, blobName, filePath, (error, result, response) => {
                     if (!error) { 
                         helperLog.logAppend('Preview uploaded to Azure Storage.');
                         resolve(blobName);
@@ -167,7 +169,7 @@
         }
 
         function detectFace(blobName) {
-            var blobUrl = `https://${configs.storageName}.blob.core.windows.net/${configs.storageContainer}/${blobName}`;
+            var blobUrl = `https://${configs2.storage.name}.blob.core.windows.net/${configs2.storage.container}/${blobName}`;
 
             var model = { Url: blobUrl };
             return callFaceApiEndpoint(`/detect?returnFaceId=true&returnFaceLandmarks=true`, 'post', model);
@@ -176,7 +178,7 @@
         function identityFace(faces) {
             var faceIds = faces.map((face) => { return face.faceId; });
 
-            var model = { faceIds: faceIds, personGroupId: configs.faceGroupName };
+            var model = { faceIds: faceIds, personGroupId: configs2.face.group };
             return callFaceApiEndpoint(`/identify`, 'post', model);
         }
 
@@ -184,7 +186,7 @@
             return new Promise((resolve, reject) => {
                 for (var i = 0; i < faces.length; i++) {
                     for (var j = 0; j < faces[i].candidates.length; j++) {
-                        if (faces[i].candidates[j].confidence > configs.faceThreshold) {
+                        if (faces[i].candidates[j].confidence > configs2.face.threshold) {
                             resolve(true);
                             return;
                         }
@@ -225,7 +227,7 @@
 
     function callFaceApiEndpoint(path, method, payload) {
         return new Promise((resolve, reject) => {
-            var parsedUrl = url.parse(configs.faceUrl);
+            var parsedUrl = url.parse(configs2.face.endpoint);
             var options = {
                 hostname: parsedUrl.hostname,
                 port: parsedUrl.port,
@@ -233,7 +235,7 @@
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Ocp-Apim-Subscription-Key': configs.faceKey
+                    'Ocp-Apim-Subscription-Key': configs2.face.key
                 }
             };
 
@@ -280,7 +282,7 @@
 
     // ====================================
     // initialze storage
-    blobService.createContainerIfNotExists(configs.storageContainer, {
+    blobService.createContainerIfNotExists(configs2.storage.container, {
         publicAccessLevel: 'blob'
     }, (error) => {
         if (error) {
@@ -299,7 +301,7 @@
     // 2. check if person group exists
         var exists = false;
         for (var i = 0; i < groups.length; i++) {
-            if (groups[i].personGroupId == configs.faceGroupName) {
+            if (groups[i].personGroupId == configs2.face.group) {
                 exists = true;
                 break;
             }
@@ -307,8 +309,8 @@
 
     // 3. create group if not exists
         if (!exists) {
-            var model = { Name: configs.faceGroupName };
-            return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}`, 'put', model);
+            var model = { Name: configs2.face.group };
+            return callFaceApiEndpoint(`/persongroups/${configs2.face.group}`, 'put', model);
         } else {
             return Promise.resolve();
         }
@@ -316,7 +318,7 @@
     .then(() => {
     // 4. get all persons in group
         helperLog.logAppend('Face group initialized.');
-        return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/persons`, 'get');
+        return callFaceApiEndpoint(`/persongroups/${configs2.face.group}/persons`, 'get');
     }, handleError)
     .then((persons) => {
         var exists = false;
@@ -329,7 +331,7 @@
     // 5. create person if not exists
         if (!exists) {
             var model = { Name: configs.facePersonName };
-            return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/persons`, 'post', model);
+            return callFaceApiEndpoint(`/persongroups/${configs2.face.group}/persons`, 'post', model);
         } else {
             return Promise.resolve({ personId: persons[i].personId });
         }
