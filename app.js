@@ -1,5 +1,13 @@
 (async function() {
+    var helperLog = require('./helpers/log');
+    helperLog.logClear();
+    helperLog.statusSetProgress();
+
+
     var configs2 = require('./helpers/config');
+
+    var helperFace = require('./helpers/face');
+    var helperCamera = require('./helpers/camera');
 
     var configs = {
         storageName: '',
@@ -14,14 +22,12 @@
         faceThreshold: 0.7
     };
 
-    var videoPreview = document.getElementById('videoPreview');
+    
     var imgPrevew = document.getElementById('imgPreview');
 
-    var helperLog = require('./helpers/log');
-    helperLog.logClear();
-    helperLog.statusSetProgress();
+    
 
-    var helperWebcam = require('./helpers/camera');
+    
 
     var fs = require('fs');
     var path = require('path');
@@ -34,22 +40,14 @@
     var storage = require('azure-storage');
     var blobService = storage.createBlobService(configs2.storage.name, configs2.storage.key);
     
-    function capturePhotoFromCamera() {
-        function takeASnap() {
-            var canvas = document.createElement('canvas');  // create a canvas
-            var ctx = canvas.getContext('2d');              // get its context
-            canvas.width = videoPreview.videoWidth;         // set its size to the one of the video
-            canvas.height = videoPreview.videoHeight;
-            ctx.drawImage(videoPreview, 0, 0);              // the video
-            return new Promise((resolve, reject) => {
-                resolve(canvas.toDataURL());
-            });
+    async function capturePhotoFromCameraAsync() {
+        try{
+            var image = await helperCamera.takeSnapAsync();
+            imgPrevew.setAttribute('src', image);
+            await helperCamera.saveImageToFileAsync(imgPrevew, 'file');
+        } catch (error) {
+            helperLog.logError(error);
         }
-
-        takeASnap()
-            .then((data) => {
-                imgPrevew.setAttribute('src', data);
-            }, handleError);
     }
 
     function setImageAsMaster() {
@@ -280,17 +278,6 @@
     }
 
 
-    // ====================================
-    // initialze storage
-    blobService.createContainerIfNotExists(configs2.storage.container, {
-        publicAccessLevel: 'blob'
-    }, (error) => {
-        if (error) {
-            handleError(error);
-        } else {
-            helperLog.logAppend('Azure Storage initialized.');
-        }
-    });
 
 
     // ====================================
@@ -344,17 +331,28 @@
     }, handleError)
 
 
+
+
+
     // ====================================
-    // initialize camera
+    // initialize
+    var helperInitialize = require('./helpers/initialize');
     try {
-        await helperWebcam.initializeWebcam();
+        await Promise.all(
+            helperInitialize.initializeWebcamAsync('videoPreview'),
+            helperInitialize.initializeFaceApiAsync(),
+            helperInitialize.initializeStorageAsync()
+        );
     } catch(error) {
         helperLog.logError(error);
     }
 
+
     // ====================================
     // attach handlers
-    document.getElementById('btnCapture').addEventListener('click', capturePhotoFromCamera);
+    document.getElementById('btnCapture').addEventListener('click', capturePhotoFromCameraAsync);
     document.getElementById('btnSetMaster').addEventListener('click', setImageAsMaster);
     document.getElementById('btnTryUnlock').addEventListener('click', tryToUnlock);
+
+    helperLog.statusClear();
 })();
