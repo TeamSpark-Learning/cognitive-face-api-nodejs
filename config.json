@@ -1,0 +1,13 @@
+{
+    "storage": {
+        "name": "",
+        "key": "",
+        "container": "faces"
+    },
+    "face": {
+        "endpoint": "",
+        "key": "",
+        "group": "inhabitants",
+        "threshold": 0.7
+    }
+}
