@@ -1,4 +1,4 @@
-(function() {
+(async function() {
     var configs = {
         storageName: '',
         storageKey: '',
@@ -15,9 +15,11 @@
     var videoPreview = document.getElementById('videoPreview');
     var imgPrevew = document.getElementById('imgPreview');
 
-    var log = require('./helpers/log');
-    log.clear();
-    log.showProgress();
+    var helperLog = require('./helpers/log');
+    helperLog.logClear();
+    helperLog.statusSetProgress();
+
+    var helperWebcam = require('./helpers/camera');
 
     var fs = require('fs');
     var path = require('path');
@@ -62,7 +64,7 @@
                 var filePath = path.join(__dirname, 'buffer', 'face.' + ext);
                 fs.writeFile(filePath, buffer, (error) => {
                     if (!error) { 
-                        log.append('Preview saved to local file.');
+                        helperLog.logAppend('Preview saved to local file.');
                         resolve(filePath);
                     }
                     else { reject(err); }
@@ -75,7 +77,7 @@
                 var blobName = uuid();
                 blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
                     if (!error) { 
-                        log.append('Preview uploaded to Azure Storage.');
+                        helperLog.logAppend('Preview uploaded to Azure Storage.');
                         resolve(blobName);
                     }
                     else { reject(err); }
@@ -111,7 +113,7 @@
             }, handleError);
         }
 
-        log.clear();
+        helperLog.logClear();
 
         savePreviewToFile()
         .then((filePath) => {
@@ -121,11 +123,11 @@
             return addFaceToModel(blobName);
         }, handleError)
         .then(() => {
-            log.append('Face added.');
+            helperLog.logAppend('Face added.');
             return trainModel();
         }, handleError)
         .then(() => {
-            log.append('Model trained.');
+            helperLog.logAppend('Model trained.');
         }, handleError);
     }
 
@@ -143,7 +145,7 @@
                 var filePath = path.join(__dirname, 'buffer', 'face.' + ext);
                 fs.writeFile(filePath, buffer, (error) => {
                     if (!error) {
-                        log.append('Preview saved to local file.');
+                        helperLog.logAppend('Preview saved to local file.');
                         resolve(filePath);
                     }
                     else { reject(err); }
@@ -156,7 +158,7 @@
                 var blobName = uuid();
                 blobService.createBlockBlobFromLocalFile(configs.storageContainer, blobName, filePath, (error, result, response) => {
                     if (!error) { 
-                        log.append('Preview uploaded to Azure Storage.');
+                        helperLog.logAppend('Preview uploaded to Azure Storage.');
                         resolve(blobName);
                     }
                     else { reject(err); }
@@ -192,8 +194,8 @@
             });
         }
 
-        log.clear();
-        log.showProgress();
+        helperLog.logClear();
+        helperLog.statusSetProgress();
 
         savePreviewToFile()
         .then((filePath) => {
@@ -203,18 +205,18 @@
             return detectFace(blobName);
         }, handleError)
         .then((faces) => {
-            log.append('Face detected.');
+            helperLog.logAppend('Face detected.');
             return identityFace(faces);
         }, handleError)
         .then((faces) => {
-            log.append('Face identified.');
+            helperLog.logAppend('Face identified.');
             return checkCandidates(faces);
         }, handleError)
         .then((result) => {
             if (!!result) {
-                log.showSuccess();
+                helperLog.statusSetSuccess();
             } else {
-                log.showFail();
+                helperLog.statusSetFail();
             }
         }, handleError);
     }
@@ -284,7 +286,7 @@
         if (error) {
             handleError(error);
         } else {
-            log.append('Azure Storage initialized.');
+            helperLog.logAppend('Azure Storage initialized.');
         }
     });
 
@@ -313,7 +315,7 @@
     }, handleError)
     .then(() => {
     // 4. get all persons in group
-        log.append('Face group initialized.');
+        helperLog.logAppend('Face group initialized.');
         return callFaceApiEndpoint(`/persongroups/${configs.faceGroupName}/persons`, 'get');
     }, handleError)
     .then((persons) => {
@@ -333,8 +335,8 @@
         }
     }, handleError)
     .then((person) => {
-        log.append('Person initialized.');
-        log.hideAll();        
+        helperLog.logAppend('Person initialized.');
+        helperLog.statusClear();        
     // 6. initialize person id
         configs.facePersonId = person.personId;
     }, handleError)
@@ -342,10 +344,16 @@
 
     // ====================================
     // initialize camera
-    navigator.getUserMedia({ video: true, audio: false }, (localMediaStream) => {
-        videoPreview.srcObject = localMediaStream;
-        videoPreview.autoplay = true;
-    }, handleError);
+    // navigator.getUserMedia({ video: true, audio: false }, (localMediaStream) => {
+    //     videoPreview.srcObject = localMediaStream;
+    //     videoPreview.autoplay = true;
+    // }, handleError);
+    try {
+        await helperWebcam.initializeWebcam();
+    } catch(error) {
+        helperLog.logError(error);
+    }
+    
 
 
     // ====================================

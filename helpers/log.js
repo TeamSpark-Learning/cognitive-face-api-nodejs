@@ -9,33 +9,37 @@ var private = {
 
 var helperLog = { };
 
-helperLog.clear = function() {
+helperLog.logClear = function() {
     private.container.innerHTML = '';
 }
 
-helperLog.append = function(message) {
+helperLog.logAppend = function(message) {
     var li = document.createElement('li');
     var text = document.createTextNode(message);
     li.appendChild(text);
     private.container.appendChild(li);
 }
 
-helperLog.showProgress = function() {
-    helperLog.hideAll();
+helperLog.logError = function() {
+
+}
+
+helperLog.statusSetProgress = function() {
+    helperLog.statusClear();
     private.messages.progress.classList.remove('d-none');
 }
 
-helperLog.showFail = function() {
-    helperLog.hideAll();
+helperLog.statusSetFail = function() {
+    helperLog.statusClear();
     private.messages.fail.classList.remove('d-none');
 }
 
-helperLog.showSuccess = function() {
-    helperLog.hideAll();
+helperLog.statusSetSuccess = function() {
+    helperLog.statusClear();
     private.messages.success.classList.remove('d-none');
 }
 
-helperLog.hideAll = function() {
+helperLog.statusClear = function() {
     private.messages.progress.classList.add('d-none');
     private.messages.fail.classList.add('d-none');
     private.messages.success.classList.add('d-none');
