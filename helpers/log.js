@@ -20,8 +20,8 @@ helperLog.logAppend = function(message) {
     private.container.appendChild(li);
 }
 
-helperLog.logError = function() {
-
+helperLog.logError = function(error) {
+    console.error(error);
 }
 
 helperLog.statusSetProgress = function() {
