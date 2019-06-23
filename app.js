@@ -346,17 +346,11 @@
 
     // ====================================
     // initialize camera
-    // navigator.getUserMedia({ video: true, audio: false }, (localMediaStream) => {
-    //     videoPreview.srcObject = localMediaStream;
-    //     videoPreview.autoplay = true;
-    // }, handleError);
     try {
         await helperWebcam.initializeWebcam();
     } catch(error) {
         helperLog.logError(error);
     }
-    
-
 
     // ====================================
     // attach handlers
