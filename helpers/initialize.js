@@ -47,10 +47,6 @@ helperInitialize.initializeFaceApiAsync = async function() {
         } else {
             helperLog.logAppend(`Group "${helperConfig.face.group}" exists.`);
         }
-
-
-
-
     } catch (error) {
         throw error;
     }

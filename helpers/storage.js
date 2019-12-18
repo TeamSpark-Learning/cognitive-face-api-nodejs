@@ -1,6 +1,6 @@
 var helperConfig = require('./config');
 
-var uuid = require('uuid/v4');
+var path = require('path');
 
 var storage = require('azure-storage');
 var blobService = storage.createBlobService(helperConfig.storage.name, helperConfig.storage.key);
@@ -21,9 +21,9 @@ helperStorage.createContainerIfNotExistsAsync = async function(containerName) {
     });
 }
 
-helperStorage.uploadAsNewFileAsync = async function(containerName, filePath) {
+helperStorage.uploadUniqueFileAsync = async function(containerName, filePath) {
     return new Promise((resolve, reject) => {
-        var blobName = uuid();
+        var blobName = path.basename(filePath, fileExtension);
         blobService.createBlockBlobFromLocalFile(containerName, blobName, filePath, (error, result, response) => {
             if (!error) { 
                 resolve(blobName);

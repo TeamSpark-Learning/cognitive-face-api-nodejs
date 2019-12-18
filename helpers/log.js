@@ -3,7 +3,8 @@ var private = {
     messages: {
         progress: document.getElementById('msgProgress'),
         fail: document.getElementById('msgFailure'),
-        success: document.getElementById('msgSuccess')
+        success: document.getElementById('msgSuccess'),
+        ready: document.getElementById('msgReady')
     }
 };
 
@@ -39,10 +40,16 @@ helperLog.statusSetSuccess = function() {
     private.messages.success.classList.remove('d-none');
 }
 
+helperLog.statusSetReady = function() {
+    helperLog.statusClear();
+    private.messages.ready.classList.remove('d-none');
+}
+
 helperLog.statusClear = function() {
     private.messages.progress.classList.add('d-none');
     private.messages.fail.classList.add('d-none');
     private.messages.success.classList.add('d-none');
+    private.messages.ready.classList.add('d-none');
 }
 
 module.exports = helperLog;

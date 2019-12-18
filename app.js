@@ -3,31 +3,19 @@
     helperLog.logClear();
     helperLog.statusSetProgress();
 
+    var appModel = {
+        filePath: ''
+    };
 
-    var configs2 = require('./helpers/config');
-
-    var helperFace = require('./helpers/face');
     var helperCamera = require('./helpers/camera');
 
     var configs = {
-        storageName: '',
-        storageKey: '',
-        storageContainer: 'faces',
-
-        faceUrl: '',
-        faceKey: '',
-        faceGroupName: 'inhabitants',
         facePersonName: 'overlord',
-        facePersonId: '',
-        faceThreshold: 0.7
+        facePersonId: ''
     };
-
+    var configs2 = require('./helpers/config');
     
     var imgPrevew = document.getElementById('imgPreview');
-
-    
-
-    
 
     var fs = require('fs');
     var path = require('path');
@@ -44,7 +32,7 @@
         try{
             var image = await helperCamera.takeSnapAsync();
             imgPrevew.setAttribute('src', image);
-            await helperCamera.saveImageToFileAsync(imgPrevew, 'file');
+            appModel.filePath = await helperCamera.saveImageToFileAsync(imgPrevew, uuid());
         } catch (error) {
             helperLog.logError(error);
         }
@@ -325,7 +313,7 @@
     }, handleError)
     .then((person) => {
         helperLog.logAppend('Person initialized.');
-        helperLog.statusClear();        
+
     // 6. initialize person id
         configs.facePersonId = person.personId;
     }, handleError)
@@ -338,11 +326,11 @@
     // initialize
     var helperInitialize = require('./helpers/initialize');
     try {
-        await Promise.all(
+        await Promise.all([
             helperInitialize.initializeWebcamAsync('videoPreview'),
             helperInitialize.initializeFaceApiAsync(),
             helperInitialize.initializeStorageAsync()
-        );
+        ]);
     } catch(error) {
         helperLog.logError(error);
     }
@@ -354,5 +342,5 @@
     document.getElementById('btnSetMaster').addEventListener('click', setImageAsMaster);
     document.getElementById('btnTryUnlock').addEventListener('click', tryToUnlock);
 
-    helperLog.statusClear();
+    helperLog.statusSetReady();
 })();

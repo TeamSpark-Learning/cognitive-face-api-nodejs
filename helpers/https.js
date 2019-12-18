@@ -19,6 +19,8 @@ helperHttps.callFaceApiEndpointAsync = async function (path, method, payload) {
             }
         };
 
+        
+
         var request = https.request(options, (response) => {
             response.setEncoding('utf8');
 

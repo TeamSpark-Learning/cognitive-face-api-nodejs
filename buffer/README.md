@@ -1,0 +1,1 @@
+This folder will be used as a temporary storage for all the photos taken with the current app.
